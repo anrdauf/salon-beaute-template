@@ -1,6 +1,7 @@
 "use client"
 
 import { MapPin, Clock, Navigation, Phone } from "lucide-react"
+import { siteConfig } from "@/lib/site-config"
 
 const openingHours = [
   { day: "Lundi", hours: "Fermé", isOpen: false },
@@ -22,11 +23,8 @@ function getCurrentDayIndex(): number {
 export function Location() {
   const currentDayIndex = getCurrentDayIndex()
 
-  // OpenStreetMap embed URL for Chartres
-  // Coordinates: 48.4469, 1.4890 (19 rue du Faubourg Guillaume, Chartres)
-  const mapEmbedUrl = "https://www.openstreetmap.org/export/embed.html?bbox=1.480,48.440,1.500,48.455&layer=mapnik&marker=48.4469,1.4890"
-  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=19+rue+du+Faubourg+Guillaume+28000+Chartres"
-  const appleMapsUrl = "https://maps.apple.com/?q=48.4469,1.4890"
+  // Default map embed URL (can be customized in siteConfig)
+  const mapEmbedUrl = siteConfig.googleMapsEmbedUrl || "https://www.openstreetmap.org/export/embed.html?bbox=1.480,48.440,1.500,48.455&layer=mapnik"
 
   return (
     <section id="location" className="py-24 md:py-32 bg-card">
@@ -52,14 +50,14 @@ export function Location() {
                 style={{ border: 0 }}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Localisation du salon Aura Spa"
+                title={`Localisation de ${siteConfig.name}`}
                 className="w-full h-full"
               />
             </div>
 
             {/* Map overlay badge */}
             <a
-              href={googleMapsUrl}
+              href={siteConfig.googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="absolute bottom-4 left-4 bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium text-primary hover:bg-primary hover:text-white transition-colors z-10"
@@ -82,15 +80,15 @@ export function Location() {
                   <div>
                     <h3 className="font-semibold text-foreground text-lg mb-1">Adresse</h3>
                     <address className="text-muted-foreground not-italic leading-relaxed">
-                      19 rue du Faubourg Guillaume<br />
-                      28000 Chartres<br />
+                      {siteConfig.address.street}<br />
+                      {siteConfig.address.postalCode} {siteConfig.address.city}<br />
                       France
                     </address>
                   </div>
                   {/* Right - Actions */}
                   <div className="flex flex-col gap-2 sm:items-end">
                     <a
-                      href={googleMapsUrl}
+                      href={siteConfig.googleMapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
@@ -99,11 +97,11 @@ export function Location() {
                       Itinéraire
                     </a>
                     <a
-                      href="tel:+33618510754"
+                      href={siteConfig.phoneLink}
                       className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
                     >
                       <Phone className="w-4 h-4" />
-                      06 18 51 07 54
+                      {siteConfig.phone}
                     </a>
                   </div>
                 </div>
@@ -145,7 +143,7 @@ export function Location() {
               <div className="mt-4 pt-4 border-t border-border/50">
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <span className="w-2 h-2 bg-green-500 rounded-full" />
-                  Actuellement ouvert
+                  Jour actuel
                 </p>
               </div>
             </div>

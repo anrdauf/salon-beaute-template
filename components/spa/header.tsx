@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu, X, Phone } from "lucide-react"
+import { siteConfig } from "@/lib/site-config"
 
 const navLinks = [
   { label: "Réserver", href: "#booking" },
@@ -37,9 +38,9 @@ export function Header() {
           <Link
             href="/"
             className="text-white font-serif text-2xl md:text-3xl italic tracking-wide hover:opacity-90 transition-opacity"
-            aria-label="Réflexologie Chartres Accueil"
+            aria-label={`${siteConfig.name} Accueil`}
           >
-            Réflexologie Chartres
+            {siteConfig.name}
           </Link>
 
           {/* Desktop Navigation */}
@@ -59,12 +60,12 @@ export function Header() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-4">
             <a
-              href="tel:+33618510754"
+              href={siteConfig.phoneLink}
               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm"
               aria-label="Appelez-nous"
             >
               <Phone className="w-4 h-4" />
-              <span className="hidden xl:inline">06 18 51 07 54</span>
+              <span className="hidden xl:inline">{siteConfig.phone}</span>
             </a>
             <Link
               href="#booking"
@@ -107,11 +108,11 @@ export function Header() {
             ))}
             <div className="pt-4 mt-2 border-t border-white/10">
               <a
-                href="tel:+33618510754"
+                href={siteConfig.phoneLink}
                 className="flex items-center gap-3 text-white/80 hover:text-white transition-colors py-3 px-4"
               >
                 <Phone className="w-5 h-5" />
-                <span>06 18 51 07 54</span>
+                <span>{siteConfig.phone}</span>
               </a>
               <Link
                 href="#booking"

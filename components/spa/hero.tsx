@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { ArrowDown, Sparkles } from "lucide-react"
+import { siteConfig } from "@/lib/site-config"
 
 export function Hero() {
   return (
@@ -9,8 +10,8 @@ export function Hero() {
       {/* Background Image with Parallax Effect */}
       <div className="absolute inset-0">
         <img
-          src="https://www.resalib.fr/app/images/partners/66155_activite.jpeg?1674048103"
-          alt="Séance de réflexologie plantaire"
+          src={siteConfig.heroImage}
+          alt={`${siteConfig.name} - Séance`}
           className="w-full h-full object-cover scale-105 object-[75%_center] sm:object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
@@ -27,19 +28,19 @@ export function Hero() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-8 animate-fade-in">
             <Sparkles className="w-4 h-4 text-accent" />
-            <span className="text-white/90 text-sm font-medium tracking-wide">Réflexologue certifiée RNCP</span>
+            <span className="text-white/90 text-sm font-medium tracking-wide">{siteConfig.tagline}</span>
           </div>
 
           {/* Heading */}
           <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white leading-[1.1] animate-fade-in-up">
-            <span className="block sm:inline">Retrouvez </span>
-            <span className="block sm:inline italic">Bien-être</span>
-            <span className="block italic text-white/90">& Sérénité</span>
+            <span className="block sm:inline">{siteConfig.hero.title.line1} </span>
+            <span className="block sm:inline italic">{siteConfig.hero.title.line2}</span>
+            <span className="block italic text-white/90">{siteConfig.hero.title.line3}</span>
           </h1>
 
           {/* Description */}
           <p className="mt-8 text-white/80 text-lg md:text-xl max-w-lg leading-relaxed animate-fade-in-up stagger-2">
-            Je suis Mélinda Favris, réflexologue certifiée à Chartres. La réflexologie stimule les capacités d&apos;auto-guérison de votre corps pour retrouver équilibre et harmonie.
+            {siteConfig.hero.description}
           </p>
 
           {/* CTA Buttons */}
@@ -66,19 +67,21 @@ export function Hero() {
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                 </svg>
               </div>
-              <p className="text-white/80 text-sm">19 rue du Faubourg Guillaume<br/>28000 Chartres</p>
+              <p className="text-white/80 text-sm">{siteConfig.address.street}<br/>{siteConfig.address.postalCode} {siteConfig.address.city}</p>
             </div>
-            <div className="text-white/80">
-              <p className="text-sm font-medium">71 avis clients Google</p>
-              <div className="flex items-center gap-1 mt-1">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <svg key={i} className="w-4 h-4 fill-accent" viewBox="0 0 20 20">
-                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                  </svg>
-                ))}
-                <span className="text-sm ml-1">4.9/5</span>
+            {siteConfig.googleReviewCount > 0 && (
+              <div className="text-white/80">
+                <p className="text-sm font-medium">{siteConfig.googleReviewCount} avis clients Google</p>
+                <div className="flex items-center gap-1 mt-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <svg key={i} className="w-4 h-4 fill-accent" viewBox="0 0 20 20">
+                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                    </svg>
+                  ))}
+                  <span className="text-sm ml-1">{siteConfig.googleRating}/5</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
