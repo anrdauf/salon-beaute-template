@@ -1,0 +1,514 @@
+{
+  "name": "Salon Beauté - Générateur de Sites",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": ""
+        },
+        "event": "rowAdded"
+      },
+      "id": "trigger-sheets",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-statut",
+              "leftValue": "={{ $json.statut }}",
+              "rightValue": "pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-pending",
+      "name": "Si Statut Pending",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "slug",
+              "name": "slug",
+              "value": "={{ $json.nom_salon.toLowerCase().replace(/\\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-') }}",
+              "type": "string"
+            },
+            {
+              "id": "repoName",
+              "name": "repoName",
+              "value": "=site-{{ $json.nom_salon.toLowerCase().replace(/\\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-') }}",
+              "type": "string"
+            },
+            {
+              "id": "row_number",
+              "name": "row_number",
+              "value": "={{ $json.row_number }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "id": "set-variables",
+      "name": "Préparer Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.github.com/repos/anrdauf/salon-beaute-template/generate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"owner\": \"anrdauf\",\n  \"name\": \"{{ $json.repoName }}\",\n  \"description\": \"Site web {{ $json.nom_salon }}\",\n  \"private\": false,\n  \"include_all_branches\": false\n}",
+        "options": {}
+      },
+      "id": "create-repo",
+      "name": "Créer Repo GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "wait-repo",
+      "name": "Attendre Création Repo",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [880, 0],
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupérer les données d'entrée\nconst data = $input.first().json;\n\n// Générer le contenu de site-config.ts\nconst escapeString = (str) => {\n  if (!str) return '';\n  return String(str).replace(/\\\\/g, '\\\\\\\\').replace(/\"/g, '\\\\\"').replace(/\\n/g, '\\\\n');\n};\n\nconst siteConfig = `/**\n * Configuration du site - ${escapeString(data.nom_salon)}\n * Généré automatiquement le ${new Date().toLocaleDateString('fr-FR')}\n */\n\nexport const siteConfig = {\n  name: \"${escapeString(data.nom_salon)}\",\n  owner: \"${escapeString(data.nom_proprietaire)}\",\n  tagline: \"${escapeString(data.tagline || 'Votre spécialité')}\",\n\n  phone: \"${escapeString(data.telephone)}\",\n  phoneLink: \"tel:+33${data.telephone ? data.telephone.replace(/\\\\s/g, '').replace(/^0/, '') : ''}\",\n  email: \"${escapeString(data.email)}\",\n\n  address: {\n    street: \"${escapeString(data.adresse_rue)}\",\n    city: \"${escapeString(data.ville)}\",\n    postalCode: \"${escapeString(data.code_postal)}\",\n    full: \"${escapeString(data.adresse_rue)}, ${escapeString(data.code_postal)} ${escapeString(data.ville)}\",\n  },\n\n  googleMapsUrl: \"${escapeString(data.google_maps_url || 'https://maps.google.com')}\",\n  googleMapsEmbedUrl: \"${escapeString(data.google_maps_embed_url || '')}\",\n  googleRating: ${data.google_rating || 5.0},\n  googleReviewCount: ${data.google_review_count || 0},\n\n  heroImage: \"${escapeString(data.image_hero || 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1920&q=80')}\",\n  ownerImage: \"${escapeString(data.image_proprietaire || '')}\",\n\n  colors: {\n    primary: \"${escapeString(data.couleur_primaire || '')}\",\n  },\n\n  hero: {\n    title: {\n      line1: \"${escapeString(data.hero_ligne1 || 'Retrouvez')}\",\n      line2: \"${escapeString(data.hero_ligne2 || 'Bien-être')}\",\n      line3: \"${escapeString(data.hero_ligne3 || '& Sérénité')}\",\n    },\n    description: \"${escapeString(data.hero_description || 'Découvrez nos soins personnalisés pour retrouver équilibre et harmonie.')}\",\n  },\n\n  services: [\n    {\n      id: \"service-1\",\n      name: \"${escapeString(data.service_1_nom || 'Soin Découverte')}\",\n      description: \"${escapeString(data.service_1_description || 'Une première approche pour découvrir les bienfaits.')}\",\n      duration: \"${escapeString(data.service_1_duree || '45 min')}\",\n      price: ${data.service_1_prix || 45},\n      image: \"${escapeString(data.service_1_image || 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=600&q=80')}\",\n    },\n    {\n      id: \"service-2\",\n      name: \"${escapeString(data.service_2_nom || 'Soin Complet')}\",\n      description: \"${escapeString(data.service_2_description || 'Un soin approfondi pour une relaxation totale.')}\",\n      duration: \"${escapeString(data.service_2_duree || '60 min')}\",\n      price: ${data.service_2_prix || 60},\n      image: \"${escapeString(data.service_2_image || 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&q=80')}\",\n    },\n    {\n      id: \"service-3\",\n      name: \"${escapeString(data.service_3_nom || 'Soin Premium')}\",\n      description: \"${escapeString(data.service_3_description || 'Notre soin signature pour une expérience unique.')}\",\n      duration: \"${escapeString(data.service_3_duree || '90 min')}\",\n      price: ${data.service_3_prix || 85},\n      image: \"${escapeString(data.service_3_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80')}\",\n    },\n  ],\n\n  benefits: [\n    {\n      title: \"${escapeString(data.bienfait_1_titre || 'Réduction du stress')}\",\n      description: \"${escapeString(data.bienfait_1_description || 'Libération des tensions accumulées et apaisement.')}\",\n      icon: \"Brain\",\n    },\n    {\n      title: \"${escapeString(data.bienfait_2_titre || 'Amélioration du sommeil')}\",\n      description: \"${escapeString(data.bienfait_2_description || 'Favorise un sommeil réparateur.')}\",\n      icon: \"Moon\",\n    },\n    {\n      title: \"${escapeString(data.bienfait_3_titre || \"Boost d'énergie\")}\",\n      description: \"${escapeString(data.bienfait_3_description || 'Stimule et revitalise.')}\",\n      icon: \"Zap\",\n    },\n    {\n      title: \"${escapeString(data.bienfait_4_titre || 'Soulagement des douleurs')}\",\n      description: \"${escapeString(data.bienfait_4_description || 'Atténue les tensions musculaires.')}\",\n      icon: \"Heart\",\n    },\n  ],\n\n  reviews: [\n    {\n      author: \"${escapeString(data.avis_1_auteur || 'Client satisfait')}\",\n      text: \"${escapeString(data.avis_1_texte || 'Excellente expérience, je recommande !')}\",\n      rating: 5,\n    },\n    {\n      author: \"${escapeString(data.avis_2_auteur || 'Client satisfait')}\",\n      text: \"${escapeString(data.avis_2_texte || 'Très professionnel et accueillant.')}\",\n      rating: 5,\n    },\n    {\n      author: \"${escapeString(data.avis_3_auteur || 'Client satisfait')}\",\n      text: \"${escapeString(data.avis_3_texte || 'Je me sens tellement mieux après chaque séance.')}\",\n      rating: 5,\n    },\n  ],\n\n  about: {\n    title: \"Les bienfaits de nos soins\",\n    description: \"${escapeString(data.about_description || 'Technique naturelle et non invasive pour retrouver équilibre et harmonie.')}\",\n    credentials: [\n      \"${escapeString(data.credential_1 || 'Certifié(e)')}\",\n      \"${escapeString(data.credential_2 || 'Approche personnalisée')}\",\n      \"${escapeString(data.credential_3 || 'Expérience')}\",\n    ],\n  },\n\n  seo: {\n    title: \"${escapeString(data.nom_salon)} | ${escapeString(data.ville)}\",\n    description: \"${escapeString(data.seo_description || 'Découvrez nos soins bien-être. Prenez rendez-vous.')}\",\n    keywords: \"${escapeString(data.seo_keywords || 'bien-être, soins, relaxation')}\",\n  },\n\n  social: {\n    facebook: \"${escapeString(data.facebook_url || '')}\",\n    instagram: \"${escapeString(data.instagram_url || '')}\",\n    linkedin: \"${escapeString(data.linkedin_url || '')}\",\n  },\n}\n\nexport type SiteConfig = typeof siteConfig\n`;\n\n// Encoder en base64 pour l'API GitHub\nconst configBase64 = Buffer.from(siteConfig).toString('base64');\n\nreturn {\n  json: {\n    ...data,\n    configContent: configBase64,\n    configPath: 'lib/site-config.ts'\n  }\n};"
+      },
+      "id": "code-generate-config",
+      "name": "Générer site-config.ts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/anrdauf/{{ $json.repoName }}/contents/lib/site-config.ts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-file-sha",
+      "name": "Récupérer SHA Fichier",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/anrdauf/{{ $('Générer site-config.ts').item.json.repoName }}/contents/lib/site-config.ts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"Configure site pour {{ $('Générer site-config.ts').item.json.nom_salon }}\",\n  \"content\": \"{{ $('Générer site-config.ts').item.json.configContent }}\",\n  \"sha\": \"{{ $json.sha }}\"\n}",
+        "options": {}
+      },
+      "id": "update-config-file",
+      "name": "Mettre à jour site-config.ts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vercel.com/v10/projects",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"{{ $('Générer site-config.ts').item.json.repoName }}\",\n  \"framework\": \"nextjs\",\n  \"gitRepository\": {\n    \"type\": \"github\",\n    \"repo\": \"anrdauf/{{ $('Générer site-config.ts').item.json.repoName }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "create-vercel-project",
+      "name": "Créer Projet Vercel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Vercel Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 180,
+        "unit": "seconds"
+      },
+      "id": "wait-deploy",
+      "name": "Attendre Déploiement",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1980, 0],
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "siteUrl",
+              "name": "siteUrl",
+              "value": "=https://{{ $('Générer site-config.ts').item.json.repoName }}.vercel.app",
+              "type": "string"
+            },
+            {
+              "id": "smsMessage",
+              "name": "smsMessage",
+              "value": "=Bonjour {{ $('Générer site-config.ts').item.json.nom_proprietaire }}, votre site {{ $('Générer site-config.ts').item.json.nom_salon }} est en ligne ! {{ $('Générer site-config.ts').item.json.repoName }}.vercel.app",
+              "type": "string"
+            },
+            {
+              "id": "emailSubject",
+              "name": "emailSubject",
+              "value": "=Votre site {{ $('Générer site-config.ts').item.json.nom_salon }} est prêt !",
+              "type": "string"
+            },
+            {
+              "id": "emailBody",
+              "name": "emailBody",
+              "value": "=Bonjour {{ $('Générer site-config.ts').item.json.nom_proprietaire }},\n\nNous avons le plaisir de vous annoncer que votre site web est maintenant en ligne :\nhttps://{{ $('Générer site-config.ts').item.json.repoName }}.vercel.app\n\nProchaines étapes :\n- Vérifiez que toutes les informations sont correctes\n- Configuration du nom de domaine sous 24-48h\n\nCordialement",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "id": "set-messages",
+      "name": "Préparer Messages",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2200, 0]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "statut": "done",
+            "url_site_genere": "={{ $json.siteUrl }}"
+          },
+          "matchingColumns": ["row_number"],
+          "schema": [
+            {
+              "id": "statut",
+              "displayName": "statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url_site_genere",
+              "displayName": "url_site_genere",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "id": "update-sheet",
+      "name": "Mettre à jour Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [2420, 0],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "no-op",
+      "name": "Fin (Pas Pending)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [440, 200]
+    }
+  ],
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Si Statut Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Si Statut Pending": {
+      "main": [
+        [
+          {
+            "node": "Préparer Variables",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fin (Pas Pending)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer Variables": {
+      "main": [
+        [
+          {
+            "node": "Créer Repo GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Créer Repo GitHub": {
+      "main": [
+        [
+          {
+            "node": "Attendre Création Repo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attendre Création Repo": {
+      "main": [
+        [
+          {
+            "node": "Générer site-config.ts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Générer site-config.ts": {
+      "main": [
+        [
+          {
+            "node": "Récupérer SHA Fichier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Récupérer SHA Fichier": {
+      "main": [
+        [
+          {
+            "node": "Mettre à jour site-config.ts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mettre à jour site-config.ts": {
+      "main": [
+        [
+          {
+            "node": "Créer Projet Vercel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Créer Projet Vercel": {
+      "main": [
+        [
+          {
+            "node": "Attendre Déploiement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attendre Déploiement": {
+      "main": [
+        [
+          {
+            "node": "Préparer Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer Messages": {
+      "main": [
+        [
+          {
+            "node": "Mettre à jour Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "pinData": {}
+}
