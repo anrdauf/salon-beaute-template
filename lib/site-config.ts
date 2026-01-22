@@ -52,11 +52,10 @@ export const siteConfig = {
   // CONTENU HERO
   // ============================================
   hero: {
-    title: {
-      line1: "Retrouvez",
-      line2: "Bien-être",
-      line3: "& Sérénité",
-    },
+    title: [
+      "Retrouvez",
+      "Bien-être & Sérénité",
+    ],
     description: "Découvrez nos soins personnalisés pour retrouver équilibre et harmonie.",
   },
 

@@ -32,7 +32,7 @@ export function ServiceSelection({ onSelectService }: ServiceSelectionProps) {
 
       <Accordion.Root
         type="multiple"
-        defaultValue={[serviceCategories[0].id]}
+        defaultValue={[]}
         className="space-y-3"
       >
         {serviceCategories.map((category) => (
