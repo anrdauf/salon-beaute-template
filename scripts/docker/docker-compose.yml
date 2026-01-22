@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  site-generator:
+    build: .
+    container_name: site-generator
+    restart: "no"
+    stdin_open: true
+    tty: true
+
+    # LIMITES RESSOURCES - Protection des autres services (n8n, etc.)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # VOLUMES
+    volumes:
+      # Template en lecture seule
+      - ../salon-beaute-template:/home/generator/templates/salon-beaute:ro
+      # Script en lecture seule
+      - ./generate-site.sh:/home/generator/scripts/generate-site.sh:ro
+      # Volume dédié pour les fichiers temporaires
+      - site-data:/home/generator/tmp
+      # Persistance des credentials Claude (important!)
+      - claude-config:/home/generator/.claude
+
+    # ENVIRONNEMENT
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - TEMPLATE_DIR=/home/generator/templates/salon-beaute
+
+    # RÉSEAU ISOLÉ
+    networks:
+      - generator-net
+
+volumes:
+  site-data:
+    driver: local
+  claude-config:
+    driver: local
+
+networks:
+  generator-net:
+    driver: bridge
