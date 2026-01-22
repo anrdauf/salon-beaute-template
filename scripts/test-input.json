@@ -1,0 +1,69 @@
+{
+  "etablissement": {
+    "nom": "Réflexologie Chartres, Mélinda Favris",
+    "slug": "reflexologie-chartres-melinda-favris",
+    "site_web": "https://www.reflexologie-chartres.fr/",
+    "repo_github": "anrdauf/reflexologie-chartres-melinda-favris"
+  },
+  "avis_google": [
+    {
+      "type": "client",
+      "auteur": "Aurélie Gutowski",
+      "is_local_guide": false,
+      "nombre_avis_auteur": 6,
+      "nombre_photos_auteur": 2,
+      "date_relative": "il y a 2 mois",
+      "date_visite": "novembre 2025",
+      "contenu": "Une séance de relaxation au top, je me sens plus légère et moins fatiguée. Mélinda est une personne douce et à l'écoute. Laissez vous tenter par ses mains de fée !!"
+    },
+    {
+      "type": "client",
+      "auteur": "nicolas savoisy",
+      "is_local_guide": true,
+      "nombre_avis_auteur": 23,
+      "nombre_photos_auteur": 1,
+      "date_relative": "il y a 4 mois",
+      "date_visite": "août 2025",
+      "contenu": "Très bonne expérience après un mois de consultation le mal dont je souffrais n'est pas revenu. Je recommande Mme Favris qui plus est très agréable et très professionnelle."
+    },
+    {
+      "type": "client",
+      "auteur": "Marie jose D",
+      "is_local_guide": false,
+      "nombre_avis_auteur": 5,
+      "nombre_photos_auteur": 0,
+      "date_relative": "il y a 5 mois",
+      "date_visite": "août 2025",
+      "contenu": "Melinda est très bonne réflexologue, très professionnel et à l'écoute de ses patients."
+    },
+    {
+      "type": "client",
+      "auteur": "tflm lr (ltrfrlrm)",
+      "is_local_guide": true,
+      "nombre_avis_auteur": 144,
+      "nombre_photos_auteur": 65,
+      "date_relative": "il y a 3 ans",
+      "date_visite": "mai 2022",
+      "contenu": "Merci beaucoup Mélinda pour ce moment de détente, gentillesse et efficacité sont de rigueur!!! Je recommande sans hésitation. A très vite. Franck."
+    },
+    {
+      "type": "client",
+      "auteur": "Safi Soussi",
+      "is_local_guide": false,
+      "nombre_avis_auteur": 3,
+      "nombre_photos_auteur": 0,
+      "date_relative": "il y a 3 ans",
+      "date_visite": "juin 2022",
+      "contenu": "Bonjour, séance très agréable personne à l'écoute, et très professionnelle prochain RDV déjà pris."
+    }
+  ],
+  "reponses_proprietaire": [],
+  "stats": {
+    "nombre_avis_clients": 5,
+    "nombre_reponses": 0
+  },
+  "metadata": {
+    "submittedAt": "2026-01-22T14:30:00.000+01:00",
+    "formMode": "test"
+  }
+}

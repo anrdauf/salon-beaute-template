@@ -1,0 +1,123 @@
+{
+  "name": "Générateur de Sites - Formulaire",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Générer un nouveau site",
+        "formDescription": "Remplissez ce formulaire pour générer automatiquement un site spa/beauté",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nom de l'établissement",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "Ex: Réflexologie Chartres"
+            },
+            {
+              "fieldLabel": "URL du site existant",
+              "fieldType": "text",
+              "requiredField": false,
+              "placeholder": "Ex: https://reflexologie-chartres.fr"
+            },
+            {
+              "fieldLabel": "Avis Google",
+              "fieldType": "textarea",
+              "requiredField": true,
+              "placeholder": "Collez ici les avis Google copiés depuis la fiche établissement"
+            },
+            {
+              "fieldLabel": "Repository GitHub",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "Ex: anrdauf/site-reflexologie-chartres"
+            }
+          ]
+        },
+        "options": {
+          "responseMode": "responseNode"
+        }
+      },
+      "id": "form-trigger",
+      "name": "Formulaire",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [0, 0],
+      "webhookId": "generate-site-form"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ═══════════════════════════════════════════════════════════════════════════\n// PARSING DES AVIS GOOGLE + GÉNÉRATION DU SLUG\n// ═══════════════════════════════════════════════════════════════════════════\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json;\n  \n  // Récupérer les données du formulaire\n  const nomEtablissement = data['Nom de l\\'établissement'] || '';\n  const siteUrl = data['URL du site existant'] || '';\n  const avisGoogle = data['Avis Google'] || '';\n  const githubRepo = data['Repository GitHub'] || '';\n  \n  // Générer le slug\n  const slug = slugify(nomEtablissement);\n  \n  // Parser les avis Google\n  const avisListe = parseAvisGoogle(avisGoogle);\n  const avisClients = avisListe.filter(a => a.type === 'client');\n  \n  // URL du callback (à configurer selon ton domaine n8n)\n  const callbackUrl = 'https://TON-N8N-DOMAIN/webhook/site-ready';\n  \n  return {\n    json: {\n      nom_etablissement: nomEtablissement,\n      site_url: siteUrl,\n      github_repo: githubRepo,\n      slug: slug,\n      avis_json: JSON.stringify(avisClients.slice(0, 10)), // Max 10 avis\n      callback_url: callbackUrl,\n      stats: {\n        nombre_avis: avisClients.length\n      }\n    }\n  };\n});\n\n// ═══════════════════════════════════════════════════════════════════════════\n// FONCTION SLUGIFY\n// ═══════════════════════════════════════════════════════════════════════════\n\nfunction slugify(text) {\n  if (!text) return 'site';\n  \n  return text\n    .toString()\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .replace(/[œ]/g, 'oe')\n    .replace(/[æ]/g, 'ae')\n    .replace(/[^a-z0-9]+/g, '-')\n    .replace(/^-+|-+$/g, '')\n    .replace(/-+/g, '-')\n    .substring(0, 50);\n}\n\n// ═══════════════════════════════════════════════════════════════════════════\n// FONCTION DE PARSING DES AVIS GOOGLE\n// ═══════════════════════════════════════════════════════════════════════════\n\nfunction parseAvisGoogle(texte) {\n  if (!texte || texte.trim() === '') return [];\n  \n  const avis = [];\n  \n  // Pattern: \"X avis[·Y photos] il y a Z temps\"\n  const startPattern = /(\\d+\\s+avis(?:·\\d+\\s+photos?)?)\\s+(il y a\\s+\\d+\\s+(?:mois|ans?|semaines?|jours?))/g;\n  \n  let matches = [];\n  let match;\n  while ((match = startPattern.exec(texte)) !== null) {\n    matches.push({\n      index: match.index,\n      endIndex: match.index + match[0].length,\n      fullMatch: match[0],\n      avisInfo: match[1],\n      dateRelative: match[2]\n    });\n  }\n  \n  for (let i = 0; i < matches.length; i++) {\n    const currentMatch = matches[i];\n    const nextMatch = matches[i + 1];\n    \n    // Extraction du nom (texte avant le pattern)\n    const beforeText = texte.substring(0, currentMatch.index);\n    const lastVisiteIndex = beforeText.lastIndexOf('Visité en');\n    const lastEmojiIndex = Math.max(beforeText.lastIndexOf('❤️'), beforeText.lastIndexOf('🙏'));\n    \n    let startSearchFrom = Math.max(lastVisiteIndex, lastEmojiIndex, 0);\n    if (lastVisiteIndex === startSearchFrom && lastVisiteIndex > 0) {\n      const afterVisite = beforeText.substring(lastVisiteIndex);\n      const visiteEndMatch = afterVisite.match(/Visité en [a-zéûàâ]+ \\d{4}/i);\n      if (visiteEndMatch) {\n        startSearchFrom = lastVisiteIndex + visiteEndMatch[0].length;\n      }\n    }\n    \n    const nameSection = beforeText.substring(startSearchFrom).trim();\n    \n    let authorName = nameSection\n      .split(/\\d+\\s+avis/)[0]\n      .replace(/Local Guide·/g, '')\n      .replace(/Visité en [a-zéûàâ]+ \\d{4}/gi, '')\n      .replace(/il y a \\d+ (?:mois|ans?|semaines?|jours?)/gi, '')\n      .replace(/[❤️🙏]\\d*/g, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n    \n    const nameParts = authorName.split(/\\s{2,}/);\n    authorName = nameParts[nameParts.length - 1].trim();\n    \n    // Extraction du contenu\n    const afterCurrentMatch = texte.substring(currentMatch.endIndex);\n    const nextAvisIndex = nextMatch ? (nextMatch.index - currentMatch.endIndex - 50) : afterCurrentMatch.length;\n    const blockText = afterCurrentMatch.substring(0, Math.max(nextAvisIndex, 0));\n    \n    let contenu = '';\n    const visiteMatch = blockText.match(/Visité en\\s+([a-zéûôàâ]+\\s+\\d{4})/i);\n    if (visiteMatch) {\n      contenu = blockText.substring(0, visiteMatch.index).trim();\n    } else {\n      const endPatterns = /(?:❤️|🙏|[A-Z][a-z]+\\s+[A-Z][a-z]+\\s+(?:Local Guide·)?\\d+\\s+avis)/;\n      const endMatch = blockText.match(endPatterns);\n      contenu = endMatch ? blockText.substring(0, endMatch.index).trim() : blockText.trim();\n    }\n    \n    contenu = contenu\n      .replace(/…Plus/g, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n    \n    // Vérifier si c'est une réponse propriétaire\n    const isProprietaire = authorName.includes('(propriétaire)') || \n                          authorName.toLowerCase().includes('réflexologie');\n    \n    if (isProprietaire) continue; // Skip les réponses proprio\n    \n    // Validation\n    if (!authorName || authorName.length < 2) continue;\n    if (!contenu || contenu.length < 20) continue;\n    \n    avis.push({\n      type: 'client',\n      auteur: authorName,\n      texte: contenu,\n      rating: 5,\n      date_relative: currentMatch.dateRelative\n    });\n  }\n  \n  // Trier par longueur de texte (les plus longs en premier = plus détaillés)\n  avis.sort((a, b) => b.texte.length - a.texte.length);\n  \n  return avis;\n}"
+      },
+      "id": "code-parse",
+      "name": "Parser Avis + Slug",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [250, 0]
+    },
+    {
+      "parameters": {
+        "command": "=nohup /opt/scripts/generate-site.sh \"{{ $json.nom_etablissement }}\" \"{{ $json.site_url }}\" \"{{ $json.github_repo }}\" \"{{ $json.slug }}\" '{{ $json.avis_json }}' \"{{ $json.callback_url }}\" > /tmp/generate-{{ $json.slug }}.log 2>&1 &\necho \"Script lancé en background\"",
+        "options": {}
+      },
+      "id": "execute-command",
+      "name": "Lancer Script",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [500, 0]
+    },
+    {
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"processing\",\n  \"message\": \"Génération en cours pour {{ $('Parser Avis + Slug').item.json.nom_etablissement }}\",\n  \"repo\": \"{{ $('Parser Avis + Slug').item.json.github_repo }}\",\n  \"estimated_time\": \"2-5 minutes\",\n  \"info\": \"Vous recevrez une notification quand le site sera prêt.\"\n}"
+      },
+      "id": "respond",
+      "name": "Répondre au formulaire",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [750, 0]
+    }
+  ],
+  "connections": {
+    "Formulaire": {
+      "main": [
+        [
+          {
+            "node": "Parser Avis + Slug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser Avis + Slug": {
+      "main": [
+        [
+          {
+            "node": "Lancer Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lancer Script": {
+      "main": [
+        [
+          {
+            "node": "Répondre au formulaire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "pinData": {}
+}

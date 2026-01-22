@@ -1,0 +1,184 @@
+{
+  "name": "Générateur de Sites - Callback",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "site-ready",
+        "options": {}
+      },
+      "id": "webhook-callback",
+      "name": "Webhook Site Ready",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "site-ready"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-success",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-success",
+      "name": "Si Succès",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [250, 0]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "email-subject",
+              "name": "email_subject",
+              "value": "=✅ Site {{ $json.nom }} généré !",
+              "type": "string"
+            },
+            {
+              "id": "email-body",
+              "name": "email_body",
+              "value": "=Bonjour,\n\nLe site pour {{ $json.nom }} a été généré avec succès !\n\n🌐 URL du site : {{ $json.site_url }}\n📦 Repository : https://github.com/{{ $json.repo }}\n\nLe déploiement Vercel devrait être terminé dans quelques instants.\n\n---\nGénéré automatiquement",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "id": "prepare-success",
+      "name": "Préparer Notification Succès",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [500, -100]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "email-subject",
+              "name": "email_subject",
+              "value": "=❌ Erreur génération site {{ $json.nom }}",
+              "type": "string"
+            },
+            {
+              "id": "email-body",
+              "name": "email_body",
+              "value": "=Bonjour,\n\nUne erreur s'est produite lors de la génération du site pour {{ $json.nom }}.\n\nMessage : {{ $json.message }}\nRepository : {{ $json.repo }}\n\nVérifiez les logs sur le VPS : /tmp/generate-*.log\n\n---\nGénéré automatiquement",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "id": "prepare-error",
+      "name": "Préparer Notification Erreur",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [500, 100]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "subject": "={{ $json.email_subject }}",
+        "message": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Envoyer Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [750, 0],
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "id": "merge",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [750, 0]
+    }
+  ],
+  "connections": {
+    "Webhook Site Ready": {
+      "main": [
+        [
+          {
+            "node": "Si Succès",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Si Succès": {
+      "main": [
+        [
+          {
+            "node": "Préparer Notification Succès",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Préparer Notification Erreur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer Notification Succès": {
+      "main": [
+        [
+          {
+            "node": "Envoyer Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer Notification Erreur": {
+      "main": [
+        [
+          {
+            "node": "Envoyer Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "pinData": {}
+}

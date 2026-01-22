@@ -253,8 +253,8 @@ export function Services() {
           </motion.div>
         </motion.div>
 
-        {/* Services Grid - 3 columns on desktop */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Services Grid - 2 columns max, centered */}
+        <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {siteConfig.services.map((service, index) => (
             <ServiceCard
               key={service.id}

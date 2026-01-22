@@ -42,14 +42,12 @@ export function Benefits() {
           </p>
         </div>
 
-        {/* Benefits Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {/* Benefits Grid - 2 colonnes max, centré */}
+        <div className="grid sm:grid-cols-2 gap-6 md:gap-8 max-w-3xl mx-auto">
           {benefits.map((benefit, index) => (
-            <div 
-              key={benefit.title} 
-              className={`group relative bg-background p-8 rounded-2xl border border-border/30 hover:border-primary/30 hover:shadow-xl transition-all duration-300 ${
-                index % 2 === 1 ? 'lg:translate-y-6' : ''
-              }`}
+            <div
+              key={benefit.title}
+              className="group relative bg-background p-8 rounded-2xl border border-border/30 hover:border-primary/30 hover:shadow-xl transition-all duration-300"
             >
               {/* Icon */}
               <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">

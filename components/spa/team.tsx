@@ -38,6 +38,9 @@ export function Team() {
                 src={teamMember.image}
                 alt={`Photo de ${teamMember.name}`}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                onError={(e) => {
+                  e.currentTarget.src = "https://www.les-soins-infirmiers.fr/avatar-femme/"
+                }}
               />
             </div>
 
@@ -46,7 +49,7 @@ export function Team() {
               {teamMember.name}
             </h3>
             <p className="text-primary text-sm font-medium mt-1">{teamMember.role}</p>
-            <p className="text-muted-foreground text-xs mt-1.5 line-clamp-1">{teamMember.specialty}</p>
+            <p className="text-muted-foreground text-xs mt-1.5 text-center leading-relaxed">{teamMember.specialty}</p>
 
             {/* Experience badge */}
             <span className="inline-block mt-3 px-3 py-1 bg-white text-muted-foreground text-xs font-medium rounded-full shadow-sm">
