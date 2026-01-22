@@ -160,9 +160,9 @@ export function About() {
           </motion.p>
         </motion.div>
 
-        {/* Benefits Grid - 2 colonnes max, centré */}
+        {/* Benefits Grid - 4 colonnes sur desktop */}
         <motion.div
-          className="grid sm:grid-cols-2 gap-6 mb-16 max-w-3xl mx-auto"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16 max-w-6xl mx-auto"
           variants={cardContainerVariants}
           initial="hidden"
           whileInView="visible"

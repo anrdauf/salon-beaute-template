@@ -52,12 +52,14 @@ AVIS_JSON=$(echo "$JSON_INPUT" | jq -c '.avis_google // []')
 
 # === CONFIGURATION ===
 # Détecter si on est en local (macOS) ou sur VPS (Linux)
-if [ -d "/opt/templates/salon-beaute" ]; then
-    TEMPLATE_DIR="/opt/templates/salon-beaute"
+if [ -d "/home/generator/templates/salon-beaute" ]; then
+      TEMPLATE_DIR="/home/generator/templates/salon-beaute"                                                                                                                                                
+elif [ -d "/opt/templates/salon-beaute" ]; then                                                                                                                                                          
+      TEMPLATE_DIR="/opt/templates/salon-beaute"                                                                                                                                                      
 elif [ -d "$HOME/Developer/salon-beaute-template" ]; then
-    TEMPLATE_DIR="$HOME/Developer/salon-beaute-template"
-else
-    TEMPLATE_DIR="$(pwd)"
+TEMPLATE_DIR="$HOME/Developer/salon-beaute-template"    
+else 
+ TEMPLATE_DIR="$(pwd)"
 fi
 PROJECT_DIR="/tmp/sites/site-$SLUG"
 SCRAPED_DIR="/tmp/scraped-$SLUG"
@@ -264,7 +266,7 @@ Tu dois modifier UNIQUEMENT le fichier `lib/site-config.ts` avec les données du
 
 ### Image du praticien (ownerImage)
 - Si aucune image réelle n'est trouvée dans le contenu scrapé, utiliser:
-  `https://www.les-soins-infirmiers.fr/avatar-femme/`
+  `https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80`
 
 ## VALIDATION
 

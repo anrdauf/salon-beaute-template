@@ -39,7 +39,7 @@ export function Team() {
                 alt={`Photo de ${teamMember.name}`}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 onError={(e) => {
-                  e.currentTarget.src = "https://www.les-soins-infirmiers.fr/avatar-femme/"
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80"
                 }}
               />
             </div>
