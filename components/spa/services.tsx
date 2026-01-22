@@ -93,17 +93,16 @@ const imageHoverVariants = {
   },
 }
 
-// Popular badge animation
+// Popular badge animation (doux pour site bien-être)
 const badgeVariants = {
-  hidden: { scale: 0, opacity: 0 },
+  hidden: { scale: 0.8, opacity: 0 },
   visible: (index: number) => ({
     scale: 1,
     opacity: 1,
     transition: {
-      delay: 0.3 + index * 0.1,
-      type: "spring",
-      stiffness: 400,
-      damping: 15,
+      delay: 0.5 + index * 0.15,
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
     },
   }),
 }

@@ -106,17 +106,16 @@ const cardVariants = {
   }),
 }
 
-// Quote icon animation
+// Quote icon animation (doux, sans rotation brusque)
 const quoteVariants = {
-  hidden: { scale: 0, rotate: -180 },
+  hidden: { scale: 0.8, opacity: 0 },
   visible: (index: number) => ({
     scale: 1,
-    rotate: 0,
+    opacity: 1,
     transition: {
-      delay: 0.2 + index * 0.15,
-      type: "spring",
-      stiffness: 300,
-      damping: 15,
+      delay: 0.4 + index * 0.2,
+      duration: 0.7,
+      ease: [0.22, 1, 0.36, 1],
     },
   }),
 }

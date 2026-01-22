@@ -18,8 +18,8 @@ export const springTransition: Transition = {
  */
 export const quickSpring: Transition = {
   type: "spring",
-  stiffness: 400,
-  damping: 17,
+  stiffness: 150,
+  damping: 20,
 }
 
 /**
