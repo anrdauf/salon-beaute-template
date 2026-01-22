@@ -232,7 +232,7 @@ export const siteConfig: SiteConfig = {
   // ============================================
   // IMAGES
   // ============================================
-  heroImage: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1920&q=80",
+  heroImage: "/images/hero-spa.png",
   ownerImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
 
   // ============================================
