@@ -3,17 +3,7 @@
 import { MapPin, Clock, Navigation, Phone } from "lucide-react"
 import { siteConfig } from "@/lib/site-config"
 
-const openingHours = [
-  { day: "Lundi", hours: "Fermé", isOpen: false },
-  { day: "Mardi", hours: "09:00 - 19:00", isOpen: true },
-  { day: "Mercredi", hours: "09:00 - 13:00", isOpen: true },
-  { day: "Jeudi", hours: "09:00 - 19:00", isOpen: true },
-  { day: "Vendredi", hours: "09:00 - 19:00", isOpen: true },
-  { day: "Samedi", hours: "Fermé", isOpen: false },
-  { day: "Dimanche", hours: "Fermé", isOpen: false },
-]
-
-// Get current day index (0 = Sunday, 1 = Monday, etc.)
+// Get current day index (0 = Monday, 6 = Sunday)
 function getCurrentDayIndex(): number {
   const day = new Date().getDay()
   // Convert from Sunday-first to Monday-first
@@ -32,10 +22,10 @@ export function Location() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="inline-block text-primary font-semibold text-sm tracking-widest uppercase mb-4">
-            Localisation
+            {siteConfig.sections.location.label}
           </span>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-tight">
-            Où nous <span className="italic">trouver</span>
+            {siteConfig.sections.location.title}
           </h2>
         </div>
 
@@ -118,7 +108,7 @@ export function Location() {
               </div>
 
               <ul className="space-y-2">
-                {openingHours.map((item, index) => (
+                {siteConfig.openingHours.map((item, index) => (
                   <li
                     key={item.day}
                     className={`flex items-center justify-between py-2 px-3 rounded-lg transition-colors ${

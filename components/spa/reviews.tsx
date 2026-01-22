@@ -4,54 +4,7 @@ import { useState } from "react"
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { quickSpring, smoothTransition } from "@/lib/animations"
-
-const ratingCategories = [
-  { name: "Accueil", score: 5.0 },
-  { name: "Écoute", score: 5.0 },
-  { name: "Cadre & Ambiance", score: 4.9 },
-  { name: "Qualité du soin", score: 4.9 },
-]
-
-const overallRating = 4.9
-const totalReviews = 71
-
-const reviews = [
-  {
-    name: "Aurélie G.",
-    date: "Novembre 2025",
-    rating: 5,
-    text: "Une séance de relaxation au top, je me sens plus légère et moins fatiguée. Mélinda est une personne douce et à l'écoute. Laissez vous tenter par ses mains de fée !!",
-    treatment: "Réflexologie"
-  },
-  {
-    name: "Nicolas S.",
-    date: "Août 2025",
-    rating: 5,
-    text: "Très bonne expérience après un mois de consultation le mal dont je souffrais n'est pas revenu. Je recommande Mme Favris qui plus est très agréable et très professionnelle.",
-    treatment: "Réflexologie plantaire"
-  },
-  {
-    name: "Laure",
-    date: "Juillet 2022",
-    rating: 5,
-    text: "Exceptionnelle, je suis stupéfaite des effets de la réflexologie sur mon corps. Je suis arrivée la première fois épuisée, en larmes et dès la fin de la première séance j'ai été agréablement surprise.",
-    treatment: "Réflexologie"
-  },
-  {
-    name: "Hélène C.",
-    date: "Mars 2023",
-    rating: 5,
-    text: "Je suis venue pour essayer de gérer mes angoisses. J'ai été très bien accueillie. Melinda est une personne à l'écoute, attentionnée. Elle a su comprendre mes attentes. En une séance, je me sens plus apaisée.",
-    treatment: "Réflexologie"
-  },
-  {
-    name: "Benoît B.",
-    date: "Décembre 2021",
-    rating: 5,
-    text: "Melinda a réussi à me soulager de grosse douleur dans le bas du dos par ses points de compressions sur le visage et sur les pieds ! En plus de ça Melinda est très agréable et très professionnelle !",
-    treatment: "Réflexologie faciale"
-  },
-]
+import { siteConfig } from "@/lib/site-config"
 
 // Profile animation
 const profileContainerVariants = {
@@ -97,7 +50,7 @@ const cardVariants = {
   visible: (index: number) => ({
     opacity: 1,
     x: 0,
-    y: index % 2 === 1 ? 16 : 0, // Keep the offset for odd cards
+    y: index % 2 === 1 ? 16 : 0,
     transition: {
       duration: 0.7,
       delay: index * 0.15,
@@ -213,6 +166,8 @@ export function Reviews() {
   const [direction, setDirection] = useState(0)
   const prefersReducedMotion = useReducedMotion()
 
+  const reviews = siteConfig.reviews
+
   const nextReview = () => {
     setDirection(1)
     setActiveIndex((prev) => (prev + 1) % reviews.length)
@@ -240,7 +195,7 @@ export function Reviews() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Mélinda Profile + Header */}
+        {/* Profile + Header */}
         <motion.div
           className="text-center max-w-2xl mx-auto mb-12"
           variants={profileContainerVariants}
@@ -248,7 +203,7 @@ export function Reviews() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {/* Photo Mélinda */}
+          {/* Photo */}
           <motion.div
             className="w-32 h-32 md:w-40 md:h-40 mx-auto mb-6 rounded-full overflow-hidden ring-4 ring-white shadow-xl"
             variants={profileImageVariants}
@@ -256,8 +211,8 @@ export function Reviews() {
             transition={quickSpring}
           >
             <img
-              src="https://www.reflexologie-chartres.fr/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmelinda.f551a63a.jpg&w=3840&q=75"
-              alt="Photo de Mélinda Favris"
+              src={siteConfig.ownerImage}
+              alt={`Photo de ${siteConfig.owner}`}
               className="w-full h-full object-cover"
             />
           </motion.div>
@@ -265,19 +220,19 @@ export function Reviews() {
             className="font-serif text-2xl md:text-3xl text-foreground mb-1"
             variants={profileTextVariants}
           >
-            Mélinda Favris
+            {siteConfig.owner}
           </motion.h2>
           <motion.p
             className="text-primary font-medium mb-2"
             variants={profileTextVariants}
           >
-            Réflexologue certifiée RNCP
+            {siteConfig.ownerDetails.certifications[0]}
           </motion.p>
           <motion.p
             className="text-muted-foreground text-sm mb-3"
             variants={profileTextVariants}
           >
-            Réflexologie plantaire et faciale
+            {siteConfig.ownerDetails.specialties.join(" et ")}
           </motion.p>
           <motion.span
             className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-medium rounded-full"
@@ -285,7 +240,7 @@ export function Reviews() {
             whileHover={{ scale: 1.05 }}
             transition={quickSpring}
           >
-            5+ ans d&apos;expérience
+            {siteConfig.ownerDetails.experience}
           </motion.span>
         </motion.div>
 
@@ -342,12 +297,12 @@ export function Reviews() {
                           animate={{ scale: 1 }}
                           transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                         >
-                          {overallRating.toFixed(1).replace(".", ",")}
+                          {siteConfig.googleRating.toFixed(1).replace(".", ",")}
                         </motion.span>
                         <div>
-                          <StarRating rating={overallRating} size="lg" />
+                          <StarRating rating={siteConfig.googleRating} size="lg" />
                           <p className="text-sm text-muted-foreground mt-1">
-                            {totalReviews} avis
+                            {siteConfig.googleReviewCount} avis
                           </p>
                         </div>
                       </div>
@@ -359,13 +314,13 @@ export function Reviews() {
                         initial="hidden"
                         animate="visible"
                       >
-                        {ratingCategories.map((category) => (
+                        {siteConfig.ratingCategories.map((category) => (
                           <motion.li
-                            key={category.name}
+                            key={category.label}
                             className="flex items-center justify-between"
                             variants={categoryItemVariants}
                           >
-                            <span className="text-sm text-muted-foreground">{category.name}</span>
+                            <span className="text-sm text-muted-foreground">{category.label}</span>
                             <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                               {category.score.toFixed(1).replace(".", ",")}
                               <Star className="w-4 h-4 fill-accent text-accent" />
@@ -375,7 +330,7 @@ export function Reviews() {
                       </motion.ul>
 
                       <p className="mt-6 pt-4 border-t border-border/30 text-sm text-muted-foreground">
-                        {totalReviews} clients ont donné leur avis
+                        {siteConfig.googleReviewCount} clients ont donné leur avis
                       </p>
                     </motion.div>
                   ) : (
@@ -402,7 +357,9 @@ export function Reviews() {
                               </span>
                               <Star className="w-4 h-4 fill-accent text-accent" />
                             </div>
-                            <span className="text-xs text-muted-foreground">{review.date}</span>
+                            {review.date && (
+                              <span className="text-xs text-muted-foreground">{review.date}</span>
+                            )}
                           </div>
                           {review.text && (
                             <p className="text-sm text-muted-foreground line-clamp-2">
@@ -457,7 +414,9 @@ export function Reviews() {
                       </span>
                       <StarRating rating={review.rating} />
                     </div>
-                    <span className="text-xs text-muted-foreground">{review.date}</span>
+                    {review.date && (
+                      <span className="text-xs text-muted-foreground">{review.date}</span>
+                    )}
                   </div>
 
                   {/* Text */}
@@ -467,14 +426,16 @@ export function Reviews() {
 
                   {/* Footer */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">{review.name}</span>
-                    <motion.span
-                      className="inline-block px-3 py-1 bg-secondary text-secondary-foreground text-xs font-medium rounded-full"
-                      whileHover={{ scale: 1.05 }}
-                      transition={quickSpring}
-                    >
-                      {review.treatment}
-                    </motion.span>
+                    <span className="text-sm font-medium text-foreground">{review.author}</span>
+                    {review.treatment && (
+                      <motion.span
+                        className="inline-block px-3 py-1 bg-secondary text-secondary-foreground text-xs font-medium rounded-full"
+                        whileHover={{ scale: 1.05 }}
+                        transition={quickSpring}
+                      >
+                        {review.treatment}
+                      </motion.span>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -511,9 +472,11 @@ export function Reviews() {
                         </span>
                         <StarRating rating={reviews[activeIndex].rating} />
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {reviews[activeIndex].date}
-                      </span>
+                      {reviews[activeIndex].date && (
+                        <span className="text-xs text-muted-foreground">
+                          {reviews[activeIndex].date}
+                        </span>
+                      )}
                     </div>
 
                     {/* Text */}
@@ -524,11 +487,13 @@ export function Reviews() {
                     {/* Footer */}
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-foreground">
-                        {reviews[activeIndex].name}
+                        {reviews[activeIndex].author}
                       </span>
-                      <span className="inline-block px-3 py-1 bg-secondary text-secondary-foreground text-xs font-medium rounded-full">
-                        {reviews[activeIndex].treatment}
-                      </span>
+                      {reviews[activeIndex].treatment && (
+                        <span className="inline-block px-3 py-1 bg-secondary text-secondary-foreground text-xs font-medium rounded-full">
+                          {reviews[activeIndex].treatment}
+                        </span>
+                      )}
                     </div>
                   </motion.div>
                 </AnimatePresence>

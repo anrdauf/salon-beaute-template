@@ -20,7 +20,7 @@ export default function Home() {
       {/* PHASE 2: DÉCOUVERTE - "C'est quoi ?" */}
       <Services />
 
-      {/* PHASE 4: CONFIANCE - Mélinda + Avis */}
+      {/* PHASE 4: CONFIANCE - Profil + Avis */}
       <Reviews />
       <About />
       <Location />

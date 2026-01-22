@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { siteConfig } from '@/lib/site-config'
 import './globals.css'
 
 const playfair = Playfair_Display({
@@ -17,8 +18,9 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Réflexologie Chartres - Mélinda Favris | Réflexologue certifiée RNCP',
-  description: 'Mélinda Favris, réflexologue certifiée RNCP à Chartres. Réflexologie plantaire et faciale pour adultes, enfants et bébés. Retrouvez bien-être et sérénité. 4.9/5 sur Google (71 avis).',
+  title: siteConfig.seo.title,
+  description: siteConfig.seo.description,
+  keywords: siteConfig.seo.keywords,
   generator: 'v0.app',
   icons: {
     icon: [

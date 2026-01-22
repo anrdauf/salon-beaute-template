@@ -11,6 +11,7 @@
   --popover: #ffffff;
   --popover-foreground: #1a1a1a;
   --primary: #1a3c34;
+  --primary-rgb: 26, 60, 52; /* RGB values for rgba() usage */
   --primary-foreground: #ffffff;
   --secondary: #f0ebe4;
   --secondary-foreground: #1a3c34;

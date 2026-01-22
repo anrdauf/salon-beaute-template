@@ -7,12 +7,8 @@ import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } fr
 import { siteConfig } from "@/lib/site-config"
 import { quickSpring, smoothTransition } from "@/lib/animations"
 
-const navLinks = [
-  { label: "Réserver", href: "#booking" },
-  { label: "Nos soins", href: "#services" },
-  { label: "Bienfaits", href: "#bienfaits" },
-  { label: "Contact", href: "#contact" },
-]
+// Navigation links from siteConfig
+const navLinks = siteConfig.navigation
 
 // Logo animation
 const logoVariants = {
@@ -100,10 +96,11 @@ export function Header() {
 
   // Scroll-linked animations
   const { scrollY } = useScroll()
+  // Primary color #1a3c34 = RGB(26, 60, 52)
   const headerBackground = useTransform(
     scrollY,
     [0, 100],
-    ["rgba(var(--primary-rgb), 0)", "rgba(var(--primary-rgb), 0.95)"]
+    ["rgba(26, 60, 52, 0)", "rgba(26, 60, 52, 0.95)"]
   )
   const headerBlur = useTransform(scrollY, [0, 100], [0, 12])
   const headerPadding = useTransform(scrollY, [0, 100], [20, 12])
