@@ -39,7 +39,7 @@ export function Team() {
                 alt={`Photo de ${teamMember.name}`}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 onError={(e) => {
-                  e.currentTarget.src = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80"
+                  e.currentTarget.src = "https://us.123rf.com/450wm/tanyadanuta/tanyadanuta1910/tanyadanuta191000004/148019276-default-avatar-profile-icon-gray-photo-placeholder-hand-drawn-modern-woman-avatar-profile-icon.jpg"
                 }}
               />
             </div>

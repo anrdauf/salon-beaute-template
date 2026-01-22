@@ -233,7 +233,7 @@ export const siteConfig: SiteConfig = {
   // IMAGES
   // ============================================
   heroImage: "/images/hero-spa.png",
-  ownerImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80",
+  ownerImage: "https://us.123rf.com/450wm/tanyadanuta/tanyadanuta1910/tanyadanuta191000004/148019276-default-avatar-profile-icon-gray-photo-placeholder-hand-drawn-modern-woman-avatar-profile-icon.jpg",
 
   // ============================================
   // COULEURS (optionnel)
